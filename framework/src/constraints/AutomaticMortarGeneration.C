@@ -758,7 +758,7 @@ AutomaticMortarGeneration::buildMortarSegmentMesh3d()
           normal += nodal_normals[n];
         }
         center /= secondary_side_elem->n_vertices();
-        normal /= secondary_side_elem->n_vertices();
+        normal.unit();
 
         // Build and store linearized sub-elements for later use
         mortar_segment_helper[sel] = new MortarSegmentHelper(nodes, center, normal);
@@ -980,9 +980,9 @@ AutomaticMortarGeneration::buildMortarSegmentMesh3d()
           if (remainder == 1.0)
             mooseDoOnce(
                 mooseWarning("Some secondary elements on mortar interface were unable to identify"
-                             "a corresponding primary element; this may be expected depending on "
-                             "problem geometry"
-                             "but may indicate a failure of the element search or projection"));
+                             " a corresponding primary element; this may be expected depending on"
+                             " problem geometry but may indicate a failure of the element search"
+                             " or projection"));
 
           std::vector<Node *> new_nodes;
           for (auto n : make_range(secondary_side_elem->n_vertices()))
@@ -1061,7 +1061,7 @@ AutomaticMortarGeneration::buildMortarSegmentMesh3d()
   //
   //   for (auto n : make_range(el->n_nodes()))
   //     Moose::out << el->point(n)(2) << ", ";
-  //   Moose::out << el->point(0)(2) << "])" << std::endl;
+  //   Moose::out << el->point(0)(2) << "], color='black')" << std::endl;
   // }
   // Moose::out << "plt.show()" << std::endl;
 

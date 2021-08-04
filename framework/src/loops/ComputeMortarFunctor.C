@@ -69,6 +69,8 @@ ComputeMortarFunctor::operator()()
   }
   _fe_problem.setActiveMaterialProperties(needed_mat_props, /*tid=*/0);
 
+  std::cout << "I live!" << std::endl;
+
   // Array to hold custom quadrature point locations on the secondary and primary sides
   std::vector<Point> custom_xi1_pts, custom_xi2_pts;
 
@@ -97,10 +99,10 @@ ComputeMortarFunctor::operator()()
     // NOTE: calling volume is fine here because elem_volume is only
     // used to check if it is very, very small. Distinction between
     // coordinates systems do not matter.
-    Real elem_volume = msm_elem->volume();
+    // Real elem_volume = msm_elem->volume();
 
-    if (elem_volume < TOLERANCE)
-      continue;
+    // if (elem_volume < TOLERANCE)
+    //   continue;
 
     // Get a reference to the MortarSegmentInfo for this Elem.
     const MortarSegmentInfo & msinfo = _amg.mortarSegmentMeshElemToInfo().at(msm_elem);

@@ -56,7 +56,13 @@ MortarSegmentHelper::getIntersection(
   s = -alpha * (cp1q2 - cp1q1 - cq1q2);
 
   if (alpha > 1e12)
-    mooseWarning("MortarSegmentHelper intersection calculation is poorly conditioned");
+    mooseWarning("MortarSegmentHelper intersection calculation is poorly conditioned, alpha = ", alpha);
+
+  // Intersection should be between p1 and p2, if it's not (due to poor conditioning), simply
+  // move it to one of the end points
+  // s = s > 1 ? 1. : s;
+  // s = s < 0 ? 0. : s;
+  // return p1 + s * dp;
 
   return alpha * (cq1q2 * dp - cp1p2 * dq);
 }
@@ -66,8 +72,8 @@ MortarSegmentHelper::isInsideSecondary(const Point pt) const
 {
   for (auto i : make_range(_secondary_poly.size()))
   {
-    const Point & q1 = _secondary_poly[(i - 1) % _secondary_poly.size()];
-    const Point & q2 = _secondary_poly[i];
+    const Point & q1 = _secondary_poly[i];
+    const Point & q2 = _secondary_poly[(i + 1) % _secondary_poly.size()];
 
     Point e1 = q2 - q1;
     Point e2 = pt - q1;
@@ -86,12 +92,13 @@ MortarSegmentHelper::isInsideSecondary(const Point pt) const
 bool
 MortarSegmentHelper::isDisjoint(const std::vector<Point> & poly) const
 {
-  for (auto i : make_range(poly.size()))
+  for (auto i : make_range(_secondary_poly.size()))
   {
     // Get edge to check
-    const Point edg = poly[(i + 1) % poly.size()] - poly[i];
-    const Real cp =
-        poly[(i + 1) % poly.size()](0) * poly[i](1) - poly[(i + 1) % poly.size()](1) * poly[i](0);
+    const Point & q1 = _secondary_poly[i];
+    const Point & q2 = _secondary_poly[(i + 1) % _secondary_poly.size()];
+    const Point edg = q2 - q1;
+    const Real cp = q2(0) * q1(1) - q2(1) * q1(0);
 
     // If more optimization needed, could store these values for later
     // Check if point is to the left of (or on) clip_edge
@@ -100,7 +107,7 @@ MortarSegmentHelper::isDisjoint(const std::vector<Point> & poly) const
     };
 
     bool all_outside = true;
-    for (auto pt : _secondary_poly)
+    for (auto pt : poly)
     {
       if (is_inside(pt, _scaled_tol))
         all_outside = false;
@@ -215,6 +222,8 @@ MortarSegmentHelper::clipPoly(const std::vector<Point> & primary_nodes,
       }
     }
   }
+  // Note: might want to make pre and post clipping cleaning routines to remove
+  // extraneous nodes and increase the quality of the mortar segement mesh
 }
 
 void

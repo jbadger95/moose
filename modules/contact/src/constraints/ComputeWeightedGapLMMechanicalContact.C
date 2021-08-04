@@ -41,6 +41,7 @@ ComputeWeightedGapLMMechanicalContact::validParams()
   params.suppressParameter<VariableName>("primary_variable");
   params.addRequiredCoupledVar("disp_x", "The x displacement variable");
   params.addRequiredCoupledVar("disp_y", "The y displacement variable");
+  params.addRequiredCoupledVar("disp_z", "The z displacement variable");
   params.addParam<Real>(
       "c", 1e6, "Parameter for balancing the size of the gap and contact pressure");
   params.set<bool>("use_displaced_mesh") = true;
@@ -54,6 +55,8 @@ ComputeWeightedGapLMMechanicalContact::ComputeWeightedGapLMMechanicalContact(
     _primary_disp_x(adCoupledNeighborValue("disp_x")),
     _secondary_disp_y(adCoupledValue("disp_y")),
     _primary_disp_y(adCoupledNeighborValue("disp_y")),
+    _secondary_disp_z(adCoupledValue("disp_z")),
+    _primary_disp_z(adCoupledNeighborValue("disp_z")),
     _normal_index(_interpolate_normals ? _qp : _i),
     _c(getParam<Real>("c"))
 {
@@ -84,6 +87,8 @@ ComputeWeightedGapLMMechanicalContact::computeQpProperties()
         _primary_disp_x[_qp].derivatives() - _secondary_disp_x[_qp].derivatives();
     gap_vec(1).derivatives() =
         _primary_disp_y[_qp].derivatives() - _secondary_disp_y[_qp].derivatives();
+    gap_vec(2).derivatives() =
+        _primary_disp_z[_qp].derivatives() - _secondary_disp_z[_qp].derivatives();
 
     _qp_gap = gap_vec * (_normals[_normal_index] * _JxW_msm[_qp] * _coord[_qp]);
   }

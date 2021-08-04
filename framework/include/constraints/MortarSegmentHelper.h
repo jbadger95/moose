@@ -135,7 +135,7 @@ private:
   /**
    * Tolerance for intersection and clipping
    */
-  Real _tolerance = 1e-7;
+  Real _tolerance = 1e-8;
 
   /**
    * Tolerance times secondary area for dimensional consistency

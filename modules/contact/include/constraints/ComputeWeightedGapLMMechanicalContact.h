@@ -61,6 +61,10 @@ protected:
   const ADVariableValue & _secondary_disp_y;
   /// y-displacement on the primary face
   const ADVariableValue & _primary_disp_y;
+  /// z-displacement on the secondary face
+  const ADVariableValue & _secondary_disp_z;
+  /// z-displacement on the primary face
+  const ADVariableValue & _primary_disp_z;
 
   /// The normal index. This is _qp if we are interpolating the nodal normals, else it is _i
   const unsigned int & _normal_index;
