@@ -100,6 +100,8 @@ protected:
   const MortarApproach _mortar_approach;
   /// Whether to use the dual Mortar approach
   bool _use_dual;
+  /// Whether the user supplied lowerD blocks for mortar
+  bool _has_lower_blocks;
   /// Number of contact pairs on which to enable mechanical contact
   const unsigned int _number_pairs;
 

@@ -1,4 +1,4 @@
-starting_point = 2e-1
+starting_point = .6
 offset = 1e-2
 
 [GlobalParams]
@@ -20,6 +20,9 @@ offset = 1e-2
   [../]
   [./normal_lm]
     block = 3
+    # family = MONOMIAL
+    # order = CONSTANT
+    # use_dual = true
   [../]
 []
 
@@ -55,7 +58,7 @@ offset = 1e-2
     disp_x = disp_x
     disp_y = disp_y
     use_displaced_mesh = true
-    c = 1
+    c = .1
   [../]
   [normal_x]
     type = NormalMortarMechanicalContact
@@ -101,18 +104,20 @@ offset = 1e-2
     variable = disp_y
     boundary = 30
     function = '${starting_point} * cos(2 * pi / 40 * t) + ${offset}'
+    preset = false
   [../]
   [./leftx]
     type = FunctionDirichletBC
     variable = disp_x
     boundary = 50
     function = '1e-2 * t'
+    preset = false
   [../]
 []
 
 [Executioner]
   type = Transient
-  end_time = 200
+  end_time = 400
   dt = 5
   dtmin = .1
   solve_type = 'PJFNK'

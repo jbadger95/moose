@@ -242,7 +242,7 @@
   nl_max_its = 30
 
   start_time = 0.0
-  end_time = 0.1 # 6.5
+  end_time = 8
 
   dt = 0.0125
   dtmin = 1e-5
@@ -275,15 +275,15 @@
 [Outputs]
   print_linear_residuals = true
   perf_graph = true
-  exodus = false
-  csv = true
-
-  [chkfile]
-    type = CSV
-    show = 'cont_press friction'
-    start_time = 0.0
-    execute_vector_postprocessors_on = FINAL
-  []
+  exodus = true
+  # csv = true
+  #
+  # [chkfile]
+  #   type = CSV
+  #   show = 'cont_press friction'
+  #   start_time = 0.0
+  #   execute_vector_postprocessors_on = FINAL
+  # []
 
   [console]
     type = Console

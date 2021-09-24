@@ -13,7 +13,7 @@
     ymax = 1
     nx = 2
     ny = 2
-    elem_type = QUAD4
+    elem_type = QUAD8
   [../]
   [./left_block_sidesets]
     type = RenameBoundaryGenerator
@@ -35,7 +35,7 @@
     ymax = 1
     nx = 2
     ny = 2
-    elem_type = QUAD4
+    elem_type = QUAD8
   [../]
   [./right_block_id]
     type = SubdomainIDGenerator
@@ -109,8 +109,8 @@
   [../]
   [./lambda]
     block = 'secondary_lower'
-    family = MONOMIAL
-    order = CONSTANT
+    family = LAGRANGE
+    order = SECOND
   [../]
 []
 
@@ -145,23 +145,23 @@
 [Functions]
   [./forcing_function]
     type = ParsedFunction
-    value = ''
+    value = 'x^4 - 12*x^2 + x*y^3 - 6*x*y + 2*y^4 - 24*y^2'
   [../]
   [./exact_soln_primal]
     type = ParsedFunction
-    value = ''
+    value = 'x^4 + x*y^3 + 2*y^4'
   [../]
   [exact_soln_lambda]
     type = ParsedFunction
-    value = ''
+    value = '-y^3 - 15'
   []
   [mms_secondary]
     type = ParsedFunction
-    value = ''
+    value = '11'
   []
   [mms_primary]
     type = ParsedFunction
-    value = ''
+    value = '17'
   []
 []
 
@@ -182,6 +182,7 @@
     primary_gap_conductance = 1
     secondary_mms_function = mms_secondary
     primary_mms_function = mms_primary
+    interpolate_normals = false
   [../]
 []
 

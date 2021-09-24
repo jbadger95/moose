@@ -1,4 +1,4 @@
-starting_point = 2e-1
+starting_point = 0.4
 offset = 1e-2
 
 [GlobalParams]

@@ -47,7 +47,12 @@ ContactAction::validParams()
       "primary", "The list of boundary IDs referring to primary sidesets");
   params.addRequiredParam<std::vector<BoundaryName>>(
       "secondary", "The list of boundary IDs referring to secondary sidesets");
-  params.addParam<MeshGeneratorName>("mesh", "", "The mesh generator for mortar method");
+  params.addParam<SubdomainName>(
+      "primary_subdomain", "The lower dimensional subdomain on primary interface (for mortar formulation)");
+  params.addParam<SubdomainName>(
+      "secondary_subdomain", "The lower dimensional subdomain on secondary interface (for mortar formulation)");
+  params.addParam<MeshGeneratorName>(
+      "mesh", "", "The mesh generator for mortar method (if primary and secondary subdomains not defined)");
   params.addParam<VariableName>("secondary_gap_offset",
                                 "Offset to gap distance from secondary side");
   params.addParam<VariableName>("mapped_primary_gap_offset",
@@ -142,6 +147,7 @@ ContactAction::ContactAction(const InputParameters & params)
     _mesh_gen_name(getParam<MeshGeneratorName>("mesh")),
     _mortar_approach(getParam<MooseEnum>("mortar_approach").getEnum<MortarApproach>()),
     _use_dual(getParam<bool>("use_dual")),
+    _has_lower_blocks(false),
     _number_pairs(_primary.size())
 {
 
@@ -161,7 +167,10 @@ ContactAction::ContactAction(const InputParameters & params)
 
   if (_formulation == "mortar")
   {
-    if (_mesh_gen_name.empty())
+    // Check if user supplied lowerD subdomains, if not we will build them.
+    if (params.isParamSetByUser("secondary_subdomain"))
+      _has_lower_blocks = true;
+    if (!_has_lower_blocks && _mesh_gen_name.empty())
       paramError("mesh", "The 'mortar' formulation requires 'mesh' to be supplied");
     if (_model == "glued")
       paramError("model", "The 'mortar' formulation does not support glued contact (yet)");
@@ -355,14 +364,17 @@ ContactAction::addMortarContact()
   const unsigned int ndisp = displacements.size();
 
   // Definitions for mortar contact.
-  const std::string primary_subdomain_name = action_name + "_primary_subdomain";
-  const std::string secondary_subdomain_name = action_name + "_secondary_subdomain";
+  const std::string secondary_subdomain_name = _has_lower_blocks
+                    ? static_cast<const std::string>(getParam<SubdomainName>("secondary_subdomain"))
+                    : action_name + "_secondary_subdomain";
+  const std::string primary_subdomain_name = _has_lower_blocks
+                    ? static_cast<const std::string>(getParam<SubdomainName>("primary_subdomain"))
+                    : action_name + "_primary_subdomain";
   const std::string normal_lagrange_multiplier_name = action_name + "_normal_lm";
   const std::string tangential_lagrange_multiplier_name = action_name + "_tangential_lm";
 
-  if (_current_task == "add_mesh_generator")
+  if (_current_task == "add_mesh_generator" && !_has_lower_blocks)
   {
-
     // Don't do mesh generators when recovering.
     if (!(_app.isRecovering() && _app.isUltimateMaster()) && !_app.masterMesh())
     {
@@ -472,6 +484,9 @@ ContactAction::addMortarContact()
 
         if (ndisp > 1)
           params.set<std::vector<VariableName>>("disp_y") = {displacements[1]};
+        if (ndisp > 2)
+          params.set<std::vector<VariableName>>("disp_z") = {displacements[2]};
+
         params.set<bool>("use_displaced_mesh") = true;
 
         _problem->addConstraint("ComputeWeightedGapLMMechanicalContact",
@@ -522,6 +537,8 @@ ContactAction::addMortarContact()
         params.set<std::vector<VariableName>>("disp_x") = {displacements[0]};
         if (ndisp > 1)
           params.set<std::vector<VariableName>>("disp_y") = {displacements[1]};
+        if (ndisp > 2)
+          params.set<std::vector<VariableName>>("disp_z") = {displacements[2]};
 
         params.set<NonlinearVariableName>("variable") = normal_lagrange_multiplier_name;
         params.set<std::vector<VariableName>>("friction_lm") = {
@@ -572,6 +589,8 @@ ContactAction::addMortarContact()
         params.set<VariableName>("secondary_variable") = displacements[0];
         if (ndisp > 1)
           params.set<NonlinearVariableName>("secondary_disp_y") = displacements[1];
+        if (ndisp > 2)
+          params.set<NonlinearVariableName>("secondary_disp_z") = displacements[2];
         // secondary_disp_z is not implemented for tangential (yet).
 
         _problem->addConstraint(

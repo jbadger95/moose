@@ -4,14 +4,14 @@
     type = GeneratedMeshGenerator
     dim = 3
     nx = 1
-    ny = 2
-    nz = 2
+    ny = 3
+    nz = 3
     xmin = 0
     xmax = 0.3
     ymin = 0
-    ymax = .5
+    ymax = 1
     zmin = 0
-    zmax = .5
+    zmax = 1
     elem_type = TET4
   [../]
   [./left_block_sidesets]
@@ -29,14 +29,14 @@
     type = GeneratedMeshGenerator
     dim = 3
     nx = 1
-    ny = 2
-    nz = 2
+    ny = 3
+    nz = 3
     xmin = 0.3
     xmax = 0.6
     ymin = 0
-    ymax = .5
+    ymax = 1
     zmin = 0
-    zmax = .5
+    zmax = 1
     elem_type = TET4
   [../]
   [./right_block_id]
@@ -129,8 +129,8 @@
   [../]
   [./lambda]
     block = 'secondary'
-    family = MONOMIAL
-    order = CONSTANT
+#    family = MONOMIAL
+#    order = CONSTANT
   [../]
 []
 
